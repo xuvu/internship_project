@@ -1,3 +1,8 @@
+import binascii
+import io
+import os
+import sys
+from PIL import Image
 from smartcard.System import readers
 from smartcard.util import HexListToBinString, toHexString, toBytes
 
