@@ -1,13 +1,13 @@
 # internship_project
 
-card = ID_card.CardReader() 
-info = card.readCard() 
+card = ID_card.CardReader() <br />
+info = card.readCard() <br />
 
-info['CID'] เลขบัตร
-info['FullnameTH'] ชื่อไทย
-info['FullnameEN'] ชื่ออังกฤษ
-info['Gender'] เพศ
-info['Card Issuer'] ผู้ออกบัตร
-info['Issue Date'] วันออก
-info['Expire Date'] วันหมด
-info['Address'] ที่อยู่
+info['CID'] เลขบัตร  <br />
+info['FullnameTH'] ชื่อไทย <br />
+info['FullnameEN'] ชื่ออังกฤษ <br />
+info['Gender'] เพศ <br />
+info['Card Issuer'] ผู้ออกบัตร <br />
+info['Issue Date'] วันออก <br />
+info['Expire Date'] วันหมด <br />
+info['Address'] ที่อยู่ <br />
