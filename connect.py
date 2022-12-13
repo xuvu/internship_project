@@ -13,7 +13,7 @@ class communication:
     def sendInfo(self,CardReader,device):
       if self.dataBaseConnection.is_connected():
         info = CardReader.readCard()
-        weight,height,temp = device.getHeightWeightTemp() #retrive weight,height,temp
+        height,weight,temp = device.getHeightWeightTemp() #retrive weight,height,temp
 
         #↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ code for insert with SQL ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
         mycursor = self.dataBaseConnection.cursor()

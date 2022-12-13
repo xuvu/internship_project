@@ -51,3 +51,6 @@ class device:
 
               if weight != None  and height != None  and temp != None :
                 return height,weight,temp
+  
+  def __del__(self):
+    self.serialPort.close()

@@ -1,3 +1,24 @@
+from time import sleep
+from smartcard.CardMonitoring import CardMonitor, CardObserver
+
+
+# a simple card observer that prints inserted/removed cards
+class PrintObserver(CardObserver):
+    """A simple card observer that is notified
+    when cards are inserted/removed from the system and
+    prints the list of cards
+    """
+    def __init__(self):
+        self.CardStatus = 0
+
+    def update(self, observable, actions):
+        (addedcards, removedcards) = actions
+        for card in addedcards:
+            self.CardStatus = 1
+
+        for card in removedcards:
+            self.CardStatus = 0
+
 import binascii
 import io
 import os
@@ -39,52 +60,64 @@ class CardReader:
         # Address
         self.CMD_ADDRESS = [0x80, 0xb0, 0x15, 0x79, 0x02, 0x00, 0x64]
 
+        #↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓ code for card observer ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+        self.cardmonitor = CardMonitor()
+        self.cardobserver = PrintObserver()
+        self.cardmonitor.addObserver(self.cardobserver)
+        #↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑ code for card observer ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
+
+    """
+    def checkCard(self):
+        return self.cardobserver.CardStatus
+    """
+
     def readCard(self):
-        # Get all the available readers
-        readerList = readers()
+        if self.cardobserver.CardStatus:
+            # Get all the available readers
+            readerList = readers()
 
-        """
-        for readerIndex,readerItem in enumerate(readerList):
-            print(readerIndex, readerItem)
-        """
-        # Select reader
-        readerSelectIndex = 0
+            """
+            for readerIndex,readerItem in enumerate(readerList):
+                print(readerIndex, readerItem)
+            """
+            # Select reader
+            readerSelectIndex = 0
 
-        reader = readerList[readerSelectIndex]
-        #print("Using:"), reader
+            reader = readerList[readerSelectIndex]
+            #print("Using:"), reader
 
-        self.connection = reader.createConnection()
-        self.connection.connect()
-        
-        atr = self.connection.getATR()
-        #print("ATR: " + toHexString(atr))
-        if (atr[0] == 0x3B & atr[1] == 0x67):
-            self.req = [0x00, 0xc0, 0x00, 0x01]
-        else :
-            self.req = [0x00, 0xc0, 0x00, 0x00]
+            self.connection = reader.createConnection()
+            self.connection.connect()
+            
+            atr = self.connection.getATR()
+            #print("ATR: " + toHexString(atr))
+            if (atr[0] == 0x3B & atr[1] == 0x67):
+                self.req = [0x00, 0xc0, 0x00, 0x01]
+            else :
+                self.req = [0x00, 0xc0, 0x00, 0x00]
 
-        #data, sw1, sw2 = self.connection.transmit(self.SELECT + self.THAI_CARD)
+            #data, sw1, sw2 = self.connection.transmit(self.SELECT + self.THAI_CARD)
 
-        self.connection.transmit(self.SELECT + self.THAI_CARD)
-        
-        #print("Select Applet: %02X %02X" % (sw1, sw2))
+            self.connection.transmit(self.SELECT + self.THAI_CARD)
+            
+            #print("Select Applet: %02X %02X" % (sw1, sw2))
 
-        allInfo = {
-        'CID': self.thai2unicode(self.getData(self.CMD_CID, self.req)[0]),
-        'FullnameTH': self.thai2unicode(self.getData(self.CMD_THFULLNAME, self.req)[0]),
-        'FullnameEN': self.thai2unicode(self.getData(self.CMD_ENFULLNAME, self.req)[0]),
-        'Date of birth':self.thai2unicode(self.getData(self.CMD_BIRTH, self.req)[0]) ,
-        'Gender': self.thai2unicode(self.getData(self.CMD_GENDER, self.req)[0]),
-        'Card Issuer': self.thai2unicode(self.getData(self.CMD_ISSUER, self.req)[0]),
-        'Issue Date': self.thai2unicode(self.getData(self.CMD_ISSUE, self.req)[0]),
-        'Expire Date': self.thai2unicode(self.getData(self.CMD_EXPIRE, self.req)[0]),
-        'Address': self.thai2unicode(self.getData(self.CMD_ADDRESS, self.req)[0]),
-        }
-        return allInfo
+            allInfo = {
+            'CID': self.thai2unicode(self.getData(self.CMD_CID, self.req)[0]),
+            'FullnameTH': self.thai2unicode(self.getData(self.CMD_THFULLNAME, self.req)[0]),
+            'FullnameEN': self.thai2unicode(self.getData(self.CMD_ENFULLNAME, self.req)[0]),
+            'Date of birth':self.thai2unicode(self.getData(self.CMD_BIRTH, self.req)[0]) ,
+            'Gender': self.thai2unicode(self.getData(self.CMD_GENDER, self.req)[0]),
+            'Card Issuer': self.thai2unicode(self.getData(self.CMD_ISSUER, self.req)[0]),
+            'Issue Date': self.thai2unicode(self.getData(self.CMD_ISSUE, self.req)[0]),
+            'Expire Date': self.thai2unicode(self.getData(self.CMD_EXPIRE, self.req)[0]),
+            'Address': self.thai2unicode(self.getData(self.CMD_ADDRESS, self.req)[0]),
+            }
+            return allInfo
+            
+        else: 
+            return 0
 
-        
-
-        
     # tis-620 to utf-8
     def thai2unicode(self,data):
         resp = ''
@@ -98,3 +131,10 @@ class CardReader:
         data, sw1, sw2 = self.connection.transmit(cmd)
         data, sw1, sw2 = self.connection.transmit(req + [cmd[-1]])
         return [data, sw1, sw2]
+    
+    def __del__(self):
+        # don't forget to remove observer, or the
+        # monitor will poll forever...
+        self.cardmonitor.deleteObserver(self.cardobserver)
+
+
